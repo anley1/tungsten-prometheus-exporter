@@ -204,7 +204,7 @@ class MetricCollection(UserList):
         super().__init__()
         self.scrapers = Group()
         self.scrape_pool = Pool(size=Config().scraper.pool_size)
-        self.session = Session(auth=auth)
+        self.session = Session(auth=auth, verify=False)
         self.session.mount(
             "http://",
             HTTPAdapter(
