@@ -1,0 +1,77 @@
+analytics:
+  host: https://ANALYTICS_IP:ANALYTICS_PORT
+  base_url: /analytics/uves
+prometheus:
+  port: 8080
+  metric_name_prefix: "tungsten"
+metrics:
+  # The state of the vrouter agents
+  - name: vrouter_state
+    type: Enum
+    kwargs: {states: [Functional, Non-Functional]}
+    uve_type: vrouter
+    uve_module: NodeStatus
+    json_path: process_status[0].state
+    append_field_name: false
+
+  # Raw vHost stats of agents
+#   - name: vrouter_raw_vhost_stats
+#     type: Gauge
+#     uve_type: vrouter
+#     uve_module: VrouterStatsAgent
+#     json_path: raw_vhost_stats.*
+#     append_field_name: false
+
+  - name: vrouter_raw_phy_if_stats
+    type: Gauge
+    uve_type: vrouter
+    uve_module: VrouterStatsAgent
+    json_path: raw_phy_if_stats.bond1.*
+
+  - name: vrouter_out_tpkts
+    type: Gauge
+    uve_type: vrouter
+    uve_module: VrouterStatsAgent
+    json_path: out_tpkts
+    append_field_name: false
+
+  - name: vrouter_in_tpkts
+    type: Gauge
+    uve_type: vrouter
+    uve_module: VrouterStatsAgent
+    json_path: in_tpkts
+    append_field_name: false
+
+  - name: vrouter_in_bytes
+    type: Gauge
+    uve_type: vrouter
+    uve_module: VrouterStatsAgent
+    json_path: in_bytes
+    append_field_name: false
+
+  - name: vrouter_out_bytes
+    type: Gauge
+    uve_type: vrouter
+    uve_module: VrouterStatsAgent
+    json_path: out_bytes
+    append_field_name: false
+
+  # Bandwidth
+  - name: vrouter_total_in_bandwidth_utilization
+    type: Gauge
+    uve_type: vrouter
+    uve_module: VrouterStatsAgent
+    json_path: total_in_bandwidth_utilization
+    append_field_name: false
+
+  - name: vrouter_total_out_bandwidth_utilization
+    type: Gauge
+    uve_type: vrouter
+    uve_module: VrouterStatsAgent
+    json_path: total_out_bandwidth_utilization
+    append_field_name: false
+scraper:
+  max_retry: 50      # number of retries when an http call fails
+  timeout: 300        # http timeout in seconds
+  pool_size: 10     # maximum number of concurrent http calls
+  interval: 20      # wait time in seconds between scrapes
