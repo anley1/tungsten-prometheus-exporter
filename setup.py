@@ -19,6 +19,7 @@ setup(
         "greenlet==0.4.16",
         "gevent==1.4.0",
         "keystoneauth1~=3.15.0",
+        "oslo.config"
     ],
     scripts=[],
     license="MIT",
