@@ -10,7 +10,8 @@ import argparse
 import confuse
 from prometheus_client import start_http_server
 
-from keystoneauth1.loading import cli as kcli
+from keystoneauth1 import loading
+from oslo_config import cfg
 
 from tungsten_prometheus_exporter.metric import MetricCollection
 from tungsten_prometheus_exporter.config import Config
@@ -32,21 +33,29 @@ def main():
         default=os.environ.get("TUNGSTEN_PROMETHEUS_EXPORTER_CONFIG"),
     )
     parser.add_argument(
+        "--auth_config",
+        type=filename,
+        default=os.environ.get("TUNGSTEN_PROMETHEUS_EXPORTER_AUTH_CONFIG"),
+    )
+    parser.add_argument(
         "--host",
         type=str,
         default=os.environ.get("TUNGSTEN_PROMETHEUS_EXPORTER_ANALYTICS_HOST"),
     )
     argv = sys.argv[1:]
-    kcli.register_argparse_arguments(parser, argv, default=None)
     args = parser.parse_args()
+
     auth = None
-    if args.os_auth_type is not None:
-        auth = kcli.load_from_argparse_arguments(args)
+    conf = cfg.ConfigOpts()
+    if args.auth_config:
+        conf(["--config-file", args.auth_config])
     if args.config:
         Config().set_file(args.config)
     if args.host:
         Config().set({'analytics': {'host': args.host}})
     Config().render()
+    auth = loading.load_auth_from_conf_options(conf, group="keystone_authtoken")
+
     start_http_server(port=Config().prometheus.port)
     logging_format = '%(asctime)-15s:%(levelname)s:%(module)s:%(message)s'
     logging.basicConfig(level=Config().logging.level, format=logging_format)
