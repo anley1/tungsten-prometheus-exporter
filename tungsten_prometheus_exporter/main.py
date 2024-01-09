@@ -46,30 +46,18 @@ def main():
     args = parser.parse_args()
 
     auth = None
-    grp = cfg.OptGroup('keystone_auth')
 
-    opts = [
-        cfg.StrOpt('auth_type', default='v3password', help='Authentication type'),
-        cfg.StrOpt('username', help='Username'),
-        cfg.StrOpt('password', help='Password'),
-        cfg.StrOpt('auth_url', help='Authentication URL'),
-        cfg.StrOpt('project_name', help='Project name'),
-        cfg.StrOpt('project_domain_name', default='Default', help='Project domain name'),
-        cfg.StrOpt('user_domain_name', default='Default', help='User domain name'),
-        # cfg.BoolOpt('auth_section', default=False)
-    ]
-
-    cfg.CONF.register_group(grp)
-    cfg.CONF(["--config-file", args.auth_config])
-    loading.register_auth_conf_options(cfg.CONF, group='keystone_auth')
-
+    if args.auth_config:
+        grp = cfg.OptGroup('keystone_auth')
+        cfg.CONF.register_group(grp)
+        loading.register_auth_conf_options(cfg.CONF, group='keystone_auth')
+        cfg.CONF(["--config-file", args.auth_config])
+        auth = loading.load_auth_from_conf_options(cfg.CONF, group='keystone_auth')
     if args.config:
         Config().set_file(args.config)
     if args.host:
         Config().set({'analytics': {'host': args.host}})
     Config().render()
-
-    auth = loading.load_auth_from_conf_options(cfg.CONF, group='keystone_auth')
 
     start_http_server(port=Config().prometheus.port)
     logging_format = '%(asctime)-15s:%(levelname)s:%(module)s:%(message)s'

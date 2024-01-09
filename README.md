@@ -19,15 +19,23 @@ Authentication
 
 If authentication is enabled on the analytics API you need to provide Openstack credentials.
 
-By default no authentication is made. Use the `--os-auth-type` to choose the
-desired authentication plugin (`v2password`, `v3password`).
+By default no authentication is made. Create an oslo config file with the `keystone_auth` section, and save this as a file e.g. keystone.conf:
 
-Depending on the selected auth plugin multiple options needs to be set on the
-command line or exported in environment variables (use `--help` to see them
-all). For example to use `v2password`:
+```yaml
+[keystone_auth]
+auth_type = v3password | v2password
+username = USERNAME
+password = PASSWORD
+auth_url = URL/v3 | URL/v2
+project_name = PROJECT_NAME
+project_domain_name = PROJECT_DOMAIN_NAME
+user_domain_name = USER_DOMAIN_NAME
+auth_section = false
+```
 
+Then, when calling the exporter, also include the `--auth_config` option, e.g:
 ```bash
-$ tungsten-prometheus-exporter --config config.yaml --os-auth-type v2password --os-username admin --os-password development --os-auth-url http://localhost:35357/v2.0/ --os-tenant-name openstack
+tungsten-prometheus-exporter --config config.yaml --auth_config keystone.conf
 ```
 
 Configuration
