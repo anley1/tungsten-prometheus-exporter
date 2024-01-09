@@ -46,7 +46,22 @@ def main():
     args = parser.parse_args()
 
     auth = None
+    keystone_group = cfg.OptGroup('keystone_auth')
+
+
     conf = cfg.ConfigOpts()
+    keystone_opts = [
+        cfg.StrOpt('auth_type', default='v3password', help='Authentication type'),
+        cfg.StrOpt('username', help='Username'),
+        cfg.StrOpt('password', help='Password'),
+        cfg.StrOpt('auth_url', help='Authentication URL'),
+        cfg.StrOpt('project_name', help='Project name'),
+        cfg.StrOpt('project_domain_name', default='Default', help='Project domain name'),
+        cfg.StrOpt('user_domain_name', default='Default', help='User domain name'),
+    ]
+    conf.register_group(keystone_group)
+    conf.register_opts(keystone_opts, group=keystone_group)
+
     if args.auth_config:
         conf(["--config-file", args.auth_config])
     if args.config:
@@ -54,7 +69,7 @@ def main():
     if args.host:
         Config().set({'analytics': {'host': args.host}})
     Config().render()
-    auth = loading.load_auth_from_conf_options(conf, group="keystone_authtoken")
+    auth = loading.load_auth_from_conf_options(conf, group="keystone_auth")
 
     start_http_server(port=Config().prometheus.port)
     logging_format = '%(asctime)-15s:%(levelname)s:%(module)s:%(message)s'
